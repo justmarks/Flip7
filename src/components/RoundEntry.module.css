@@ -32,7 +32,6 @@
 }
 
 .title {
-  font-family: 'Titan One', sans-serif;
   font-size: 1.4rem;
   font-weight: 900;
   color: var(--gold);
@@ -78,7 +77,6 @@
 }
 
 .roundScore {
-  font-family: 'Titan One', sans-serif;
   font-size: 1.4rem;
   font-weight: 900;
   color: var(--gold);
@@ -133,7 +131,6 @@
 }
 
 .numberSum {
-  font-family: 'Titan One', sans-serif;
   font-size: 1.6rem;
   font-weight: 900;
   min-width: 40px;
