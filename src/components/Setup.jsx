@@ -1,8 +1,23 @@
 import { useState } from 'react'
 import styles from './Setup.module.css'
 
+const STORAGE_KEY = 'flip7_last_players'
+
+function loadLastPlayers() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed) && parsed.length >= 2) return parsed
+    }
+  } catch {}
+  return null
+}
+
 export default function Setup({ onStart }) {
-  const [names, setNames] = useState(['', '', ''])
+  const lastPlayers = loadLastPlayers()
+  const [names, setNames] = useState(lastPlayers ?? ['', '', ''])
+  const isReturning = !!lastPlayers
 
   function addPlayer() {
     if (names.length < 18) setNames(prev => [...prev, ''])
@@ -18,7 +33,10 @@ export default function Setup({ onStart }) {
 
   function handleStart() {
     const filled = names.map(n => n.trim()).filter(Boolean)
-    if (filled.length >= 2) onStart(filled)
+    if (filled.length >= 2) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(filled))
+      onStart(filled)
+    }
   }
 
   const filledCount = names.filter(n => n.trim()).length
@@ -36,7 +54,9 @@ export default function Setup({ onStart }) {
 
         <div className={styles.divider} />
 
-        <p className={styles.subtitle}>Score Tracker — Enter Players</p>
+        <p className={styles.subtitle}>
+          {isReturning ? 'Welcome back! Same players?' : 'Score Tracker — Enter Players'}
+        </p>
 
         <div className={styles.players}>
           {names.map((name, i) => (

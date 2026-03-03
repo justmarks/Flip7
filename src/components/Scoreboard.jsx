@@ -1,12 +1,21 @@
+import { useState } from 'react'
 import styles from './Scoreboard.module.css'
+import ConfirmModal from './ConfirmModal'
 
 const PLAYER_COLORS = ['#FFD700', '#FF6B35', '#00C9A7', '#3A86FF', '#7B2FBE', '#EF233C', '#06D6A0', '#FB5607']
 
 export default function Scoreboard({ players, rounds, currentRound, onStartRound, onReset }) {
+  const [showConfirm, setShowConfirm] = useState(false)
   const sorted = [...players].sort((a, b) => b.totalScore - a.totalScore)
-
-  const colCount = rounds.length + 1
   const gridCols = `140px repeat(${rounds.length}, 44px)`
+
+  function handleNewGame() {
+    if (rounds.length > 0) {
+      setShowConfirm(true)
+    } else {
+      onReset()
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -51,8 +60,19 @@ export default function Scoreboard({ players, rounds, currentRound, onStartRound
         <button className={styles.startRoundBtn} onClick={onStartRound}>
           ▶ Enter Round {currentRound} Scores
         </button>
-        <button className={styles.resetBtn} onClick={onReset}>New Game</button>
+        <button className={styles.resetBtn} onClick={handleNewGame}>New Game</button>
       </div>
+
+      {showConfirm && (
+        <ConfirmModal
+          title="Start a new game?"
+          message={`Round ${currentRound} is in progress. All current scores will be lost.`}
+          confirmLabel="Yes, new game"
+          cancelLabel="Keep playing"
+          onConfirm={onReset}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
 
       {rounds.length > 0 && (
         <div className={styles.history}>
