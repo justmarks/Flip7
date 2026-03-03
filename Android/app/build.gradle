@@ -14,12 +14,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    applicationVariants.all { variant ->
-        variant.outputs.all {
-            outputFileName = "Flip7ScoreTracker.apk"
-        }
-    }
-
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
@@ -43,6 +37,14 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.forEach { output ->
+            output.outputFileName.set("Flip7ScoreTracker.apk")
+        }
+    }
 }
 
 apply from: 'capacitor.build.gradle'
