@@ -57,3 +57,37 @@ jobs:
           path: flip7-debug.apk
           if-no-files-found: error
           retention-days: 30
+
+      - name: Upload APK to Google Drive
+        run: |
+          pip install google-api-python-client google-auth --quiet
+          python3 << 'EOF'
+          import os, json
+          from google.oauth2 import service_account
+          from googleapiclient.discovery import build
+          from googleapiclient.http import MediaFileUpload
+
+          creds = service_account.Credentials.from_service_account_info(
+              json.loads(os.environ['GDRIVE_CREDENTIALS']),
+              scopes=['https://www.googleapis.com/auth/drive.file']
+          )
+          service = build('drive', 'v3', credentials=creds)
+
+          file_metadata = {
+              'name': 'Flip7ScoreTracker.apk',
+              'parents': [os.environ['GDRIVE_FOLDER_ID']]
+          }
+          media = MediaFileUpload(
+              'flip7-debug.apk',
+              mimetype='application/vnd.android.package-archive'
+          )
+          result = service.files().create(
+              body=file_metadata,
+              media_body=media,
+              fields='id,name'
+          ).execute()
+          print(f"Uploaded {result['name']} to Google Drive (id: {result['id']})")
+          EOF
+        env:
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
