@@ -90,4 +90,4 @@ jobs:
           EOF
         env:
           GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
-          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+          GDRIVE_FOLDER_ID: 1GJIeUSxSb4OhMkDGc-t3p1Hf39Jr8aiq
