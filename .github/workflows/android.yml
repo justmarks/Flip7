@@ -62,20 +62,24 @@ jobs:
         run: |
           pip install google-api-python-client google-auth --quiet
           python3 << 'EOF'
-          import os, json
-          from google.oauth2 import service_account
+          import os
+          from google.oauth2.credentials import Credentials
           from googleapiclient.discovery import build
           from googleapiclient.http import MediaFileUpload
 
-          creds = service_account.Credentials.from_service_account_info(
-              json.loads(os.environ['GDRIVE_CREDENTIALS']),
+          creds = Credentials(
+              token=None,
+              refresh_token=os.environ['GDRIVE_REFRESH_TOKEN'],
+              client_id=os.environ['GDRIVE_CLIENT_ID'],
+              client_secret=os.environ['GDRIVE_CLIENT_SECRET'],
+              token_uri='https://oauth2.googleapis.com/token',
               scopes=['https://www.googleapis.com/auth/drive.file']
           )
           service = build('drive', 'v3', credentials=creds)
 
           file_metadata = {
               'name': 'Flip7ScoreTracker.apk',
-              'parents': [os.environ['GDRIVE_FOLDER_ID']]
+              'parents': ['1GJIeUSxSb4OhMkDGc-t3p1Hf39Jr8aiq']
           }
           media = MediaFileUpload(
               'flip7-debug.apk',
@@ -89,5 +93,6 @@ jobs:
           print(f"Uploaded {result['name']} to Google Drive (id: {result['id']})")
           EOF
         env:
-          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
-          GDRIVE_FOLDER_ID: 1GJIeUSxSb4OhMkDGc-t3p1Hf39Jr8aiq
+          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
