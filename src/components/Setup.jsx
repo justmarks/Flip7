@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import styles from './Setup.module.css'
+import PlayerPicker from './PlayerPicker'
+import { getKnownPlayers } from '../lib/storage'
 
 const STORAGE_KEY = 'flip7_last_players'
 
@@ -14,10 +16,11 @@ function loadLastPlayers() {
   return null
 }
 
-export default function Setup({ onStart }) {
+export default function Setup({ onStart, onLeaderboard }) {
   const lastPlayers = loadLastPlayers()
   const [names, setNames] = useState(lastPlayers ?? ['', '', ''])
   const isReturning = !!lastPlayers
+  const knownPlayers = getKnownPlayers()
 
   function addPlayer() {
     if (names.length < 18) setNames(prev => [...prev, ''])
@@ -42,14 +45,22 @@ export default function Setup({ onStart }) {
   const filledCount = names.filter(n => n.trim()).length
   const canStart = filledCount >= 2
 
+  // Names currently selected (non-empty), for dimming in picker
+  const selectedNames = names.filter(n => n.trim())
+
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <div className={styles.logoWrap}>
-          <div className={styles.logo}>
-            <span className={styles.logoFlip}>FLIP </span>7
+        <div className={styles.headerRow}>
+          <div className={styles.logoWrap}>
+            <div className={styles.logo}>
+              <span className={styles.logoFlip}>FLIP </span>7
+            </div>
+            <div className={styles.tagline}>The Greatest Card Game of All Time</div>
           </div>
-          <div className={styles.tagline}>The Greatest Card Game of All Time</div>
+          <button className={styles.leaderboardBtn} onClick={onLeaderboard} type="button">
+            Leaderboard
+          </button>
         </div>
 
         <div className={styles.divider} />
@@ -61,12 +72,12 @@ export default function Setup({ onStart }) {
         <div className={styles.players}>
           {names.map((name, i) => (
             <div key={i} className={styles.playerRow}>
-              <input
+              <PlayerPicker
                 value={name}
-                onChange={e => updateName(i, e.target.value)}
+                onChange={val => updateName(i, val)}
+                knownPlayers={knownPlayers}
+                selectedNames={selectedNames}
                 placeholder={`Player ${i + 1}`}
-                maxLength={20}
-                onKeyDown={e => e.key === 'Enter' && addPlayer()}
               />
               {names.length > 2 && (
                 <button className={styles.removeBtn} onClick={() => removePlayer(i)}>✕</button>
