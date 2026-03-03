@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap');
 
 * {
   box-sizing: border-box;
@@ -7,30 +7,54 @@
 }
 
 :root {
-  --bg:         #06090f;
-  --surface:    #0d1321;
-  --surface2:   #111827;
-  --border:     rgba(255,255,255,0.08);
-  --gold:       #FFD700;
-  --gold-dim:   #c9a800;
-  --orange:     #FF6B35;
-  --teal:       #00C9A7;
-  --red:        #EF233C;
-  --purple:     #7B2FBE;
-  --blue:       #3A86FF;
-  --text:       #FFFFFF;
-  --text-muted: rgba(255,255,255,0.5);
-  --text-dim:   rgba(255,255,255,0.25);
-  --radius:     14px;
-  --radius-sm:  8px;
+  /* Backgrounds — warm paper/cream */
+  --bg:         #FFF8F0;
+  --surface:    #FFFFFF;
+  --surface2:   #FDF5EA;
+
+  /* Borders */
+  --border:     #E8DDD0;
+
+  /* Brand — coral, the game's warm energy */
+  --coral:      #FF7043;
+  --coral-light:#FF8A65;
+
+  /* Card game palette — mirrors the game's number card colors */
+  --card-red:    #FF6B6B;
+  --card-orange: #FF9A3C;
+  --card-yellow: #FFD93D;
+  --card-lime:   #6BCB77;
+  --card-teal:   #4ECDC4;
+  --card-blue:   #45B7D1;
+  --card-purple: #C77DFF;
+  --card-pink:   #FF6FAE;
+
+  /* Semantic */
+  --bust:       #FF6B6B;
+  --flip7:      #4ECDC4;
+  --gold:       #FFD93D;
+  --teal:       #4ECDC4;
+  --red:        #FF6B6B;
+
+  /* Text */
+  --text:       #2D2416;
+  --text-muted: #8B7355;
+  --text-dim:   #B8A48C;
+
+  /* Radius */
+  --radius:     16px;
+  --radius-sm:  10px;
+
+  /* Shadow — card on table */
+  --shadow-sm:  0 2px 8px rgba(100,70,30,0.10);
+  --shadow-md:  0 4px 16px rgba(100,70,30,0.12);
 }
 
 body {
   font-family: 'Nunito', system-ui, sans-serif;
   background-color: var(--bg);
-  background-image:
-    radial-gradient(ellipse at 20% 10%, rgba(255,215,0,0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(58,134,255,0.05) 0%, transparent 50%);
+  background-image: radial-gradient(rgba(180,140,100,0.10) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
   color: var(--text);
   min-height: 100vh;
 }
@@ -44,7 +68,7 @@ button {
   cursor: pointer;
   border: none;
   font-weight: 700;
-  transition: opacity 0.15s, transform 0.1s, filter 0.15s;
+  transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
 }
 
 button:active:not(:disabled) {
@@ -52,7 +76,7 @@ button:active:not(:disabled) {
 }
 
 button:disabled {
-  opacity: 0.35;
+  opacity: 0.4;
   cursor: not-allowed;
   transform: none;
 }
@@ -65,9 +89,12 @@ input {
   font-size: 1rem;
   width: 100%;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  background: var(--surface);
+  color: var(--text);
 }
 
 input:focus {
-  border-color: var(--gold);
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px rgba(255,112,67,0.15);
 }
