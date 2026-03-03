@@ -17,12 +17,11 @@
 }
 
 .logo {
-  font-family: 'Titan One', 'Nunito', sans-serif;
   font-size: 1.8rem;
   font-weight: 900;
   color: var(--gold);
   letter-spacing: 2px;
-  text-shadow: 0 0 20px rgba(255,215,0,0.5), 2px 2px 0 rgba(0,0,0,0.5);
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
 }
 
 .logoFlip {
@@ -99,7 +98,6 @@
   font-size: 1.5rem;
   font-weight: 900;
   color: var(--gold);
-  font-family: 'Titan One', sans-serif;
   flex-shrink: 0;
 }
 
