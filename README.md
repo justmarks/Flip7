@@ -52,9 +52,16 @@ This score tracker is designed to be used alongside a physical Flip 7 deck. It h
   - Check the **Flip 7 bonus** if you landed all 7 unique cards
   - Mark a player as **Busted** to record 0 for the round
 - Live standings and round history visible while entering scores
+- **Player autocomplete** — name inputs suggest known players from past games; already-selected names are dimmed
+- **Leaderboard** — all-time stats per player (games played, wins, highest score, win%) plus a recent-games list showing the last 20 games with winner and per-player scores
+- **Persistent history** — stats and game history are saved in your browser's local storage and survive page reloads
 - Remembers player names between games
 - "Are you sure?" prompt before abandoning a game in progress
 - Detects the winner and shows final standings
+
+### Clearing History
+
+To wipe the recent games list, navigate to the app with `?ClearHistory` appended to the URL (e.g. `https://yourapp.com/?ClearHistory`). You'll be prompted to confirm before anything is deleted. Player win/loss stats are not affected.
 
 ### Running Locally
 
