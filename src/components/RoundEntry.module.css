@@ -131,28 +131,26 @@
 }
 
 .numberSum {
-  font-size: 1.6rem;
-  font-weight: 900;
-  min-width: 40px;
-  text-align: center;
-  color: var(--text);
-}
-
-.numberInput {
-  width: 70px;
+  flex: 1;
   background: var(--surface2);
   border: 1px solid var(--border);
   color: var(--text);
   text-align: center;
-  font-size: 1rem;
-  font-weight: 800;
-  padding: 9px;
+  font-size: 1.5rem;
+  font-weight: 900;
+  padding: 8px;
   border-radius: var(--radius-sm);
-  margin-left: auto;
+  width: 0;
 }
 
-.numberInput:focus {
+.numberSum:focus {
   border-color: var(--gold);
+  outline: none;
+}
+
+.numberSum::-webkit-inner-spin-button,
+.numberSum::-webkit-outer-spin-button {
+  -webkit-appearance: none;
 }
 
 .modifierGrid {

@@ -46,18 +46,17 @@ function PlayerScoreInput({ player, entry, onChange }) {
       {!entry.busted && (
         <>
           <div className={styles.section}>
-            <label className={styles.label}>Number Cards Total</label>
+            <label className={styles.label}>Total from number cards</label>
             <div className={styles.numberRow}>
               <button className={styles.adjustBtn} onClick={() => adjustNumberSum(-1)}>−</button>
-              <span className={styles.numberSum}>{entry.numberSum}</span>
-              <button className={styles.adjustBtn} onClick={() => adjustNumberSum(1)}>+</button>
               <input
-                className={styles.numberInput}
+                className={styles.numberSum}
                 type="number"
                 min="0"
                 value={entry.numberSum}
                 onChange={e => onChange({ numberSum: Math.max(0, parseInt(e.target.value) || 0) })}
               />
+              <button className={styles.adjustBtn} onClick={() => adjustNumberSum(1)}>+</button>
             </div>
           </div>
 
