@@ -148,66 +148,70 @@ export default function RoundEntry({ players, rounds, currentRound, onSubmit, on
         </div>
       </div>
 
-      {rounds.length > 0 && (
-        <div className={styles.standings}>
-          <div className={styles.standingsTitle}>Standings</div>
-          {sorted.map((p, i) => {
-            const pct = Math.min((p.totalScore / 200) * 100, 100)
-            const color = PLAYER_COLORS[players.findIndex(pl => pl.id === p.id) % PLAYER_COLORS.length]
-            return (
-              <div key={p.id} className={styles.standingRow}>
-                <span className={styles.standingRank}>{i === 0 ? '👑' : `${i + 1}`}</span>
-                <span className={styles.standingName}>{p.name}</span>
-                <div className={styles.standingBar}>
-                  <div className={styles.standingFill} style={{ width: `${pct}%`, background: color }} />
+      <div className={styles.scrollable}>
+        {rounds.length > 0 && (
+          <div className={styles.standings}>
+            <div className={styles.standingsTitle}>Standings</div>
+            {sorted.map((p, i) => {
+              const pct = Math.min((p.totalScore / 200) * 100, 100)
+              const color = PLAYER_COLORS[players.findIndex(pl => pl.id === p.id) % PLAYER_COLORS.length]
+              return (
+                <div key={p.id} className={styles.standingRow}>
+                  <span className={styles.standingRank}>{i === 0 ? '👑' : `${i + 1}`}</span>
+                  <span className={styles.standingName}>{p.name}</span>
+                  <div className={styles.standingBar}>
+                    <div className={styles.standingFill} style={{ width: `${pct}%`, background: color }} />
+                  </div>
+                  <span className={styles.standingScore}>{p.totalScore}</span>
                 </div>
-                <span className={styles.standingScore}>{p.totalScore}</span>
-              </div>
-            )
-          })}
+              )
+            })}
 
-          {rounds.length > 0 && (
-            <div className={styles.historyTable} style={{ gridTemplateColumns: gridCols }}>
-              <div className={styles.historyHeader} style={{ gridTemplateColumns: gridCols }}>
-                <span>Player</span>
-                {rounds.map(r => <span key={r.roundNumber}>R{r.roundNumber}</span>)}
-              </div>
-              {players.map(p => (
-                <div key={p.id} className={styles.historyRow} style={{ gridTemplateColumns: gridCols }}>
-                  <span className={styles.historyName}>{p.name}</span>
-                  {rounds.map(r => {
-                    const entry = r.scores.find(s => s.playerId === p.id)
-                    return (
-                      <span key={r.roundNumber} className={entry?.score === 0 ? styles.bust : ''}>
-                        {entry ? entry.score : '—'}
-                      </span>
-                    )
-                  })}
+            {rounds.length > 0 && (
+              <div className={styles.historyTable} style={{ gridTemplateColumns: gridCols }}>
+                <div className={styles.historyHeader} style={{ gridTemplateColumns: gridCols }}>
+                  <span>Player</span>
+                  {rounds.map(r => <span key={r.roundNumber}>R{r.roundNumber}</span>)}
                 </div>
-              ))}
-            </div>
-          )}
+                {players.map(p => (
+                  <div key={p.id} className={styles.historyRow} style={{ gridTemplateColumns: gridCols }}>
+                    <span className={styles.historyName}>{p.name}</span>
+                    {rounds.map(r => {
+                      const entry = r.scores.find(s => s.playerId === p.id)
+                      return (
+                        <span key={r.roundNumber} className={entry?.score === 0 ? styles.bust : ''}>
+                          {entry ? entry.score : '—'}
+                        </span>
+                      )
+                    })}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className={styles.sectionDivider}>
+          <span>Round {currentRound} — Enter Scores</span>
         </div>
-      )}
 
-      <div className={styles.sectionDivider}>
-        <span>Round {currentRound} — Enter Scores</span>
+        <div className={styles.entries}>
+          {players.map((p, i) => (
+            <PlayerScoreInput
+              key={p.id}
+              player={p}
+              entry={entries[i]}
+              onChange={changes => updateEntry(p.id, changes)}
+            />
+          ))}
+        </div>
       </div>
 
-      <div className={styles.entries}>
-        {players.map((p, i) => (
-          <PlayerScoreInput
-            key={p.id}
-            player={p}
-            entry={entries[i]}
-            onChange={changes => updateEntry(p.id, changes)}
-          />
-        ))}
+      <div className={styles.footer}>
+        <button className={styles.submitBtn} onClick={handleSubmit}>
+          Confirm Round {currentRound} Scores
+        </button>
       </div>
-
-      <button className={styles.submitBtn} onClick={handleSubmit}>
-        Confirm Round {currentRound} Scores
-      </button>
 
       {showConfirm && (
         <ConfirmModal

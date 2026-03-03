@@ -1,12 +1,28 @@
 .container {
-  min-height: 100vh;
-  padding: 20px;
+  height: 100dvh;
+  height: 100vh; /* fallback for older browsers */
+  padding: 20px 20px 0 20px;
   max-width: 520px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding-bottom: 36px;
+  overflow: hidden;
+}
+
+.scrollable {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 8px;
+}
+
+.footer {
+  flex-shrink: 0;
+  padding: 8px 0 16px 0;
 }
 
 /* ── Header ── */

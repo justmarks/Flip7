@@ -99,6 +99,7 @@ export default function Setup({ onStart, onLeaderboard }) {
         </button>
 
         <p className={styles.hint}>First to 200 points wins!</p>
+        <p className={styles.version}>v{__APP_VERSION__}</p>
       </div>
     </div>
   )

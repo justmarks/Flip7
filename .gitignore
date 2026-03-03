@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Capacitor / Android
+Android/.gradle/
+Android/app/build/
+Android/build/
+Android/local.properties

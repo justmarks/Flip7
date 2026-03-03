@@ -70,7 +70,37 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open [http://localhost:5173/Flip7/](http://localhost:5173/Flip7/) in your browser.
+
+### Running on Android
+
+#### Prerequisites
+- [Android Studio](https://developer.android.com/studio) installed
+- Android SDK and an emulator or physical device configured
+
+#### First-time setup
+```bash
+npm install
+npx cap sync android
+```
+
+Then open the `Android/` folder in Android Studio and let it sync Gradle.
+
+#### Build & deploy
+```bash
+npm run sync:android
+```
+
+This builds the web app with the correct relative base path for Android's WebView and syncs the assets into the native project. Then run the app from Android Studio onto your device or emulator.
+
+> **Note:** Use `npm run sync:android` (not `npm run build`) for Android — the regular build uses an absolute base path that won't load in a WebView.
+
+#### Bumping the app version
+The version displayed on the setup screen is read from `package.json` at build time. To increment it, update the `version` field in `package.json` before running `npm run sync:android`:
+
+```json
+"version": "1.0.1"
+```
 
 ---
 
