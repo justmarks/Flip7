@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import styles from './RoundEntry.module.css'
+import ConfirmModal from './ConfirmModal'
 
 const MODIFIERS = ['+2', '+4', '+6', '+8', '+10', 'x2']
+const PLAYER_COLORS = ['#FFD700', '#FF6B35', '#00C9A7', '#3A86FF', '#7B2FBE', '#EF233C', '#06D6A0', '#FB5607']
 
 function calcScore({ busted, numberSum, modifiers, flip7 }) {
   if (busted) return 0
@@ -96,7 +98,7 @@ function PlayerScoreInput({ player, entry, onChange }) {
   )
 }
 
-export default function RoundEntry({ players, currentRound, onSubmit, onCancel }) {
+export default function RoundEntry({ players, rounds, currentRound, onSubmit, onReset }) {
   const [entries, setEntries] = useState(
     players.map(p => ({
       playerId: p.id,
@@ -106,6 +108,10 @@ export default function RoundEntry({ players, currentRound, onSubmit, onCancel }
       flip7: false,
     }))
   )
+  const [showConfirm, setShowConfirm] = useState(false)
+
+  const sorted = [...players].sort((a, b) => b.totalScore - a.totalScore)
+  const gridCols = `140px repeat(${rounds.length}, 44px)`
 
   function updateEntry(playerId, changes) {
     setEntries(prev =>
@@ -119,13 +125,73 @@ export default function RoundEntry({ players, currentRound, onSubmit, onCancel }
       score: calcScore(e),
     }))
     onSubmit(scores)
+    setEntries(players.map(p => ({
+      playerId: p.id,
+      busted: false,
+      numberSum: 0,
+      modifiers: [],
+      flip7: false,
+    })))
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <button className={styles.backBtn} onClick={onCancel}>← Back</button>
-        <h2 className={styles.title}>Round {currentRound}</h2>
+        <div className={styles.logo}>
+          <span className={styles.logoFlip}>FLIP </span>7
+        </div>
+        <div className={styles.headerRight}>
+          <span className={styles.roundBadge}>Round {currentRound}</span>
+          <button className={styles.newGameBtn} onClick={() => rounds.length > 0 ? setShowConfirm(true) : onReset()}>
+            New Game
+          </button>
+        </div>
+      </div>
+
+      {rounds.length > 0 && (
+        <div className={styles.standings}>
+          <div className={styles.standingsTitle}>Standings</div>
+          {sorted.map((p, i) => {
+            const pct = Math.min((p.totalScore / 200) * 100, 100)
+            const color = PLAYER_COLORS[players.findIndex(pl => pl.id === p.id) % PLAYER_COLORS.length]
+            return (
+              <div key={p.id} className={styles.standingRow}>
+                <span className={styles.standingRank}>{i === 0 ? '👑' : `${i + 1}`}</span>
+                <span className={styles.standingName}>{p.name}</span>
+                <div className={styles.standingBar}>
+                  <div className={styles.standingFill} style={{ width: `${pct}%`, background: color }} />
+                </div>
+                <span className={styles.standingScore}>{p.totalScore}</span>
+              </div>
+            )
+          })}
+
+          {rounds.length > 0 && (
+            <div className={styles.historyTable} style={{ gridTemplateColumns: gridCols }}>
+              <div className={styles.historyHeader} style={{ gridTemplateColumns: gridCols }}>
+                <span>Player</span>
+                {rounds.map(r => <span key={r.roundNumber}>R{r.roundNumber}</span>)}
+              </div>
+              {players.map(p => (
+                <div key={p.id} className={styles.historyRow} style={{ gridTemplateColumns: gridCols }}>
+                  <span className={styles.historyName}>{p.name}</span>
+                  {rounds.map(r => {
+                    const entry = r.scores.find(s => s.playerId === p.id)
+                    return (
+                      <span key={r.roundNumber} className={entry?.score === 0 ? styles.bust : ''}>
+                        {entry ? entry.score : '—'}
+                      </span>
+                    )
+                  })}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className={styles.sectionDivider}>
+        <span>Round {currentRound} — Enter Scores</span>
       </div>
 
       <div className={styles.entries}>
@@ -140,8 +206,19 @@ export default function RoundEntry({ players, currentRound, onSubmit, onCancel }
       </div>
 
       <button className={styles.submitBtn} onClick={handleSubmit}>
-        Confirm Scores
+        Confirm Round {currentRound} Scores
       </button>
+
+      {showConfirm && (
+        <ConfirmModal
+          title="Start a new game?"
+          message={`Round ${currentRound} is in progress. All current scores will be lost.`}
+          confirmLabel="Yes, new game"
+          cancelLabel="Keep playing"
+          onConfirm={onReset}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
     </div>
   )
 }
