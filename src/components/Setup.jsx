@@ -1,26 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './Setup.module.css'
 import PlayerPicker from './PlayerPicker'
-import { getKnownPlayers } from '../lib/storage'
-
-const STORAGE_KEY = 'flip7_last_players'
-
-function loadLastPlayers() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      const parsed = JSON.parse(saved)
-      if (Array.isArray(parsed) && parsed.length >= 2) return parsed
-    }
-  } catch {}
-  return null
-}
+import { getKnownPlayers, getLastPlayers, saveLastPlayers } from '../lib/storage'
 
 export default function Setup({ onStart, onLeaderboard }) {
-  const lastPlayers = loadLastPlayers()
-  const [names, setNames] = useState(lastPlayers ?? ['', '', ''])
-  const isReturning = !!lastPlayers
-  const knownPlayers = getKnownPlayers()
+  const [names, setNames] = useState(['', '', ''])
+  const [isReturning, setIsReturning] = useState(false)
+  const [knownPlayers, setKnownPlayers] = useState([])
+
+  useEffect(() => {
+    getLastPlayers().then(lp => {
+      if (lp) { setNames(lp); setIsReturning(true) }
+    })
+    getKnownPlayers().then(setKnownPlayers)
+  }, [])
 
   function addPlayer() {
     if (names.length < 18) setNames(prev => [...prev, ''])
@@ -37,7 +30,7 @@ export default function Setup({ onStart, onLeaderboard }) {
   function handleStart() {
     const filled = names.map(n => n.trim()).filter(Boolean)
     if (filled.length >= 2) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(filled))
+      saveLastPlayers(filled)
       onStart(filled)
     }
   }

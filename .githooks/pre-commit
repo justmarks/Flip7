@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -e
+
+node scripts/bump-version.js
+git add package.json Android/app/build.gradle

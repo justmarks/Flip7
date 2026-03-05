@@ -1,38 +1,41 @@
+import { Preferences } from '@capacitor/preferences'
+
 const STATS_KEY = 'flip7_player_stats'
 const HISTORY_KEY = 'flip7_game_history'
+const LAST_PLAYERS_KEY = 'flip7_last_players'
 const MAX_HISTORY = 100
 
-function readStats() {
+async function readStats() {
   try {
-    const raw = localStorage.getItem(STATS_KEY)
-    if (raw) return JSON.parse(raw)
+    const { value } = await Preferences.get({ key: STATS_KEY })
+    if (value) return JSON.parse(value)
   } catch {}
   return {}
 }
 
-function writeStats(stats) {
+async function writeStats(stats) {
   try {
-    localStorage.setItem(STATS_KEY, JSON.stringify(stats))
+    await Preferences.set({ key: STATS_KEY, value: JSON.stringify(stats) })
   } catch {}
 }
 
-function readHistory() {
+async function readHistory() {
   try {
-    const raw = localStorage.getItem(HISTORY_KEY)
-    if (raw) return JSON.parse(raw)
+    const { value } = await Preferences.get({ key: HISTORY_KEY })
+    if (value) return JSON.parse(value)
   } catch {}
   return []
 }
 
-function writeHistory(history) {
+async function writeHistory(history) {
   try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history))
+    await Preferences.set({ key: HISTORY_KEY, value: JSON.stringify(history) })
   } catch {}
 }
 
 /** Returns player stat objects sorted by lastPlayed desc */
-export function getKnownPlayers() {
-  const stats = readStats()
+export async function getKnownPlayers() {
+  const stats = await readStats()
   return Object.values(stats).sort((a, b) => {
     if (b.lastPlayed > a.lastPlayed) return 1
     if (b.lastPlayed < a.lastPlayed) return -1
@@ -41,19 +44,38 @@ export function getKnownPlayers() {
 }
 
 /** Raw stats object keyed by lowercased name */
-export function getPlayerStats() {
+export async function getPlayerStats() {
   return readStats()
 }
 
 /** Raw history array, newest first */
-export function getGameHistory() {
+export async function getGameHistory() {
   return readHistory()
 }
 
-/** Clears the game history array (stats are kept) */
-export function clearGameHistory() {
+/** Last players array, or null */
+export async function getLastPlayers() {
   try {
-    localStorage.removeItem(HISTORY_KEY)
+    const { value } = await Preferences.get({ key: LAST_PLAYERS_KEY })
+    if (value) {
+      const parsed = JSON.parse(value)
+      if (Array.isArray(parsed) && parsed.length >= 2) return parsed
+    }
+  } catch {}
+  return null
+}
+
+/** Persists the last players list */
+export async function saveLastPlayers(names) {
+  try {
+    await Preferences.set({ key: LAST_PLAYERS_KEY, value: JSON.stringify(names) })
+  } catch {}
+}
+
+/** Clears the game history array (stats are kept) */
+export async function clearGameHistory() {
+  try {
+    await Preferences.remove({ key: HISTORY_KEY })
   } catch {}
 }
 
@@ -61,8 +83,8 @@ export function clearGameHistory() {
  * Records a completed game.
  * @param {{ players: Array<{name: string, score: number}>, winnerName: string, roundCount: number }} param
  */
-export function recordGame({ players, winnerName, roundCount }) {
-  const stats = readStats()
+export async function recordGame({ players, winnerName, roundCount }) {
+  const stats = await readStats()
   const now = new Date().toISOString()
 
   for (const { name, score } of players) {
@@ -80,9 +102,9 @@ export function recordGame({ players, winnerName, roundCount }) {
     existing.lastPlayed = now
     stats[key] = existing
   }
-  writeStats(stats)
+  await writeStats(stats)
 
-  const history = readHistory()
+  const history = await readHistory()
   const entry = {
     id: Date.now(),
     date: now,
@@ -92,5 +114,5 @@ export function recordGame({ players, winnerName, roundCount }) {
   }
   history.unshift(entry)
   if (history.length > MAX_HISTORY) history.length = MAX_HISTORY
-  writeHistory(history)
+  await writeHistory(history)
 }

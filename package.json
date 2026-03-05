@@ -1,9 +1,10 @@
 {
   "name": "flip7",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks || true",
     "dev": "vite",
     "build": "vite build",
     "build:android": "vite build --base ./",
@@ -14,6 +15,7 @@
   "dependencies": {
     "@capacitor/android": "^8.1.0",
     "@capacitor/core": "^8.1.0",
+    "@capacitor/preferences": "^8.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

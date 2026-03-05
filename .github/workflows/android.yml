@@ -43,18 +43,22 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x Android/gradlew
 
+      - name: Get app version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
       - name: Build debug APK
         run: ./gradlew assembleDebug
         working-directory: Android
 
       - name: Copy APK to workspace root
-        run: cp Android/app/build/outputs/apk/debug/Flip7ScoreTracker.apk flip7-debug.apk
+        run: cp "Android/app/build/outputs/apk/debug/Flip7ScoreTracker-v${{ steps.version.outputs.version }}.apk" "flip7-v${{ steps.version.outputs.version }}-debug.apk"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: flip7-debug-${{ github.run_number }}
-          path: flip7-debug.apk
+          name: flip7-v${{ steps.version.outputs.version }}-debug
+          path: flip7-v${{ steps.version.outputs.version }}-debug.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -67,6 +71,10 @@ jobs:
           from googleapiclient.discovery import build
           from googleapiclient.http import MediaFileUpload
 
+          version = os.environ['APP_VERSION']
+          apk_filename = f'flip7-v{version}-debug.apk'
+          drive_name = f'Flip7ScoreTracker-v{version}.apk'
+
           creds = Credentials(
               token=None,
               refresh_token=os.environ['GDRIVE_REFRESH_TOKEN'],
@@ -78,11 +86,11 @@ jobs:
           service = build('drive', 'v3', credentials=creds)
 
           file_metadata = {
-              'name': 'Flip7ScoreTracker.apk',
+              'name': drive_name,
               'parents': ['1GJIeUSxSb4OhMkDGc-t3p1Hf39Jr8aiq']
           }
           media = MediaFileUpload(
-              'flip7-debug.apk',
+              apk_filename,
               mimetype='application/vnd.android.package-archive'
           )
           result = service.files().create(
@@ -93,6 +101,7 @@ jobs:
           print(f"Uploaded {result['name']} to Google Drive (id: {result['id']})")
           EOF
         env:
+          APP_VERSION: ${{ steps.version.outputs.version }}
           GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
           GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
           GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}

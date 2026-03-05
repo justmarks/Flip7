@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { getPlayerStats, getGameHistory } from '../lib/storage'
 import styles from './Leaderboard.module.css'
 
@@ -12,8 +13,13 @@ function winPct(wins, played) {
 }
 
 export default function Leaderboard({ onBack }) {
-  const stats = getPlayerStats()
-  const history = getGameHistory()
+  const [stats, setStats] = useState({})
+  const [history, setHistory] = useState([])
+
+  useEffect(() => {
+    getPlayerStats().then(setStats)
+    getGameHistory().then(setHistory)
+  }, [])
 
   const rows = Object.values(stats).sort((a, b) => {
     if (b.wins !== a.wins) return b.wins - a.wins
