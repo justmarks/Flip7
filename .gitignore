@@ -28,3 +28,7 @@ Android/.gradle/
 Android/app/build/
 Android/build/
 Android/local.properties
+
+# Signing keystore (never commit — store password in GitHub secrets)
+*.jks
+*.keystore

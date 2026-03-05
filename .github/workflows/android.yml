@@ -47,18 +47,26 @@ jobs:
         id: version
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug
+      - name: Decode keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > Android/app/flip7-release.jks
+
+      - name: Build release APK
+        run: ./gradlew assembleRelease
         working-directory: Android
+        env:
+          KEYSTORE_PATH: ${{ github.workspace }}/Android/app/flip7-release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Copy APK to workspace root
-        run: cp "Android/app/build/outputs/apk/debug/Flip7ScoreTracker-v${{ steps.version.outputs.version }}.apk" "flip7-v${{ steps.version.outputs.version }}-debug.apk"
+        run: cp "Android/app/build/outputs/apk/release/Flip7ScoreTracker-v${{ steps.version.outputs.version }}.apk" "Flip7ScoreTracker-v${{ steps.version.outputs.version }}.apk"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: flip7-v${{ steps.version.outputs.version }}-debug
-          path: flip7-v${{ steps.version.outputs.version }}-debug.apk
+          name: Flip7ScoreTracker-v${{ steps.version.outputs.version }}
+          path: Flip7ScoreTracker-v${{ steps.version.outputs.version }}.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -72,8 +80,7 @@ jobs:
           from googleapiclient.http import MediaFileUpload
 
           version = os.environ['APP_VERSION']
-          apk_filename = f'flip7-v{version}-debug.apk'
-          drive_name = f'Flip7ScoreTracker-v{version}.apk'
+          apk_filename = f'Flip7ScoreTracker-v{version}.apk'
 
           creds = Credentials(
               token=None,
@@ -86,7 +93,7 @@ jobs:
           service = build('drive', 'v3', credentials=creds)
 
           file_metadata = {
-              'name': drive_name,
+              'name': apk_filename,
               'parents': ['1GJIeUSxSb4OhMkDGc-t3p1Hf39Jr8aiq']
           }
           media = MediaFileUpload(
