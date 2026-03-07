@@ -1,0 +1,245 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.modal {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 24px 24px;
+  width: 100%;
+  max-width: 380px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--shadow-lg), 5px 5px 0px #E8DDD0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.headerTitle {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+
+.bggBadge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+}
+
+.divider {
+  height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+  margin: 2px 0;
+}
+
+.sectionTitle {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+}
+
+.playMeta {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+}
+
+.playerRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+}
+
+.playerPlace {
+  width: 26px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.playerName {
+  flex: 1;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playerScore {
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: var(--coral);
+}
+
+.mappingHint {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  margin: -4px 0 4px;
+}
+
+.mappingRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.mappingLabel {
+  flex: 0 0 80px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mappingInput {
+  flex: 1;
+  font-size: 0.85rem;
+  padding: 7px 10px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  color: var(--text);
+  font-family: inherit;
+  font-weight: 600;
+}
+
+.mappingInput:focus {
+  outline: none;
+  border-color: var(--coral-light);
+}
+
+.successMsg {
+  text-align: center;
+  font-weight: 800;
+  color: #3a8c4e;
+  font-size: 1rem;
+  padding: 12px 0;
+}
+
+.errorMsg {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--bust);
+  text-align: center;
+  padding: 2px 0;
+}
+
+.infoMsg {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 12px 0;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.skipBtn {
+  flex: 1;
+  background: transparent;
+  color: var(--text-muted);
+  border: 2px solid var(--border);
+  padding: 12px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.skipBtn:hover:not(:disabled) {
+  background: var(--surface2);
+}
+
+.publishBtn {
+  flex: 2;
+  background: var(--coral);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 3px 0px #C85A30;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.publishBtn:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.publishBtn:active:not(:disabled) {
+  box-shadow: 0 1px 0px #C85A30;
+  transform: translateY(2px);
+}
+
+.publishBtn:disabled,
+.skipBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.closeBtn {
+  flex: 1;
+  background: var(--coral);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 3px 0px #C85A30;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  filter: brightness(1.06);
+}

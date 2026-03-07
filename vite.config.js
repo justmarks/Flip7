@@ -8,7 +8,18 @@ const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'))
 export default defineConfig({
   plugins: [react()],
   base: '/Flip7/',
+  server: {
+    proxy: {
+      '/bgg': {
+        target: 'https://boardgamegeek.com/',
+        changeOrigin: true,
+        secure: true,
+        followRedirects: true,
+        rewrite: (path) => path.replace('/bgg/', '')
+      }
+    }
+  },
   define: {
     __APP_VERSION__: JSON.stringify(version),
-  },
+  }
 })

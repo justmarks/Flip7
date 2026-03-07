@@ -115,4 +115,5 @@ export async function recordGame({ players, winnerName, roundCount }) {
   history.unshift(entry)
   if (history.length > MAX_HISTORY) history.length = MAX_HISTORY
   await writeHistory(history)
+  return entry.id
 }

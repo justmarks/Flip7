@@ -12,6 +12,7 @@ export default function App() {
   const [rounds, setRounds] = useState([])
   const [currentRound, setCurrentRound] = useState(1)
   const [winner, setWinner] = useState(null)
+  const [lastGameId, setLastGameId] = useState(null)
 
   const hasClearParam = new URLSearchParams(window.location.search).has('ClearHistory')
   const [showClearConfirm, setShowClearConfirm] = useState(hasClearParam)
@@ -44,7 +45,7 @@ export default function App() {
     setPhase('roundEntry')
   }
 
-  function submitRound(roundScores) {
+  async function submitRound(roundScores) {
     const updatedPlayers = players.map(p => {
       const entry = roundScores.find(r => r.playerId === p.id)
       return { ...p, totalScore: p.totalScore + (entry ? entry.score : 0) }
@@ -57,11 +58,12 @@ export default function App() {
     const topScore = Math.max(...updatedPlayers.map(p => p.totalScore))
     if (topScore >= 200) {
       const roundWinner = updatedPlayers.reduce((a, b) => a.totalScore > b.totalScore ? a : b)
-      recordGame({
+      const gameId = await recordGame({
         players: updatedPlayers.map(p => ({ name: p.name, score: p.totalScore })),
         winnerName: roundWinner.name,
         roundCount: newRounds.length,
       })
+      setLastGameId(gameId)
       setWinner(roundWinner)
       setPhase('winner')
     } else {
@@ -91,7 +93,7 @@ export default function App() {
     />
   )
   else if (phase === 'winner') screen = (
-    <Winner winner={winner} players={players} rounds={rounds} onReset={resetGame} />
+    <Winner winner={winner} players={players} rounds={rounds} gameId={lastGameId} onReset={resetGame} />
   )
   else if (phase === 'leaderboard') screen = (
     <Leaderboard onBack={() => setPhase('setup')} />

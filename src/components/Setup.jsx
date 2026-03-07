@@ -1,19 +1,44 @@
 import { useState, useEffect } from 'react'
 import styles from './Setup.module.css'
 import PlayerPicker from './PlayerPicker'
+import BggSettingsModal from './BggSettingsModal'
 import { getKnownPlayers, getLastPlayers, saveLastPlayers } from '../lib/storage'
+import { getBggCredentials, getBggMappings } from '../lib/bgg'
 
 export default function Setup({ onStart, onLeaderboard }) {
   const [names, setNames] = useState(['', '', ''])
   const [isReturning, setIsReturning] = useState(false)
   const [knownPlayers, setKnownPlayers] = useState([])
+  const [showBggSettings, setShowBggSettings] = useState(false)
+  const [bggCreds, setBggCreds] = useState(null)
 
   useEffect(() => {
     getLastPlayers().then(lp => {
       if (lp) { setNames(lp); setIsReturning(true) }
     })
     getKnownPlayers().then(setKnownPlayers)
+    getBggCredentials().then(setBggCreds)
   }, [])
+
+  // Pre-fill first player slot from BGG credentials when starting fresh
+  useEffect(() => {
+    if (!bggCreds?.username || isReturning) return
+    getBggMappings().then(mappings => {
+      // Reverse lookup: find local player whose BGG username matches the logged-in user
+      const entry = Object.entries(mappings).find(
+        ([, bgg]) => bgg.toLowerCase() === bggCreds.username.toLowerCase()
+      )
+      // Cross-reference with knownPlayers to get original-case display name
+      const localName = entry
+        ? (knownPlayers.find(p => p.name.toLowerCase() === entry[0])?.name ?? entry[0])
+        : bggCreds.username
+      setNames(prev => {
+        const next = [...prev]
+        if (!next[0]?.trim()) next[0] = localName
+        return next
+      })
+    })
+  }, [bggCreds, isReturning, knownPlayers])
 
   function addPlayer() {
     if (names.length < 18) setNames(prev => [...prev, ''])
@@ -35,6 +60,12 @@ export default function Setup({ onStart, onLeaderboard }) {
     }
   }
 
+  function handleSettingsClose() {
+    setShowBggSettings(false)
+    // Refresh credentials in case they were updated
+    getBggCredentials().then(setBggCreds)
+  }
+
   const filledCount = names.filter(n => n.trim()).length
   const canStart = filledCount >= 2
 
@@ -45,6 +76,7 @@ export default function Setup({ onStart, onLeaderboard }) {
     <div className={styles.container}>
       <div className={styles.card}>
         <div className={styles.headerRow}>
+          <button className={styles.settingsBtn} onClick={() => setShowBggSettings(true)} type="button">⚙</button>
           <div className={styles.logoWrap}>
             <div className={styles.logo}>
               <span className={styles.logoFlip}>FLIP </span>7
@@ -94,6 +126,13 @@ export default function Setup({ onStart, onLeaderboard }) {
         <p className={styles.hint}>First to 200 points wins!</p>
         <p className={styles.version}>v{__APP_VERSION__}</p>
       </div>
+
+      {showBggSettings && (
+        <BggSettingsModal
+          knownPlayers={knownPlayers}
+          onClose={handleSettingsClose}
+        />
+      )}
     </div>
   )
 }

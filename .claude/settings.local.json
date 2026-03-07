@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(node:*)",
+      "Bash(do:*)",
+      "Bash(gh run:*)",
+      "Bash(gh:*)",
+      "Bash(\"/c/Program Files/Android/Android Studio/jbr/bin/keytool.exe\":*)",
+      "Bash(printf %s:*)",
+      "Bash(npm run build)"
+    ]
+  }
+}

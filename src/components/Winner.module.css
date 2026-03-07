@@ -133,6 +133,21 @@
   color: var(--coral);
 }
 
+.bggBtn {
+  background: transparent;
+  color: var(--text-muted);
+  border: 2px solid var(--border);
+  padding: 11px 40px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  border-radius: var(--radius);
+  margin-top: 16px;
+  width: 100%;
+  letter-spacing: 0.02em;
+}
+
+.bggBtn:hover { background: var(--surface2); }
+
 .newGameBtn {
   background: var(--coral);
   color: #fff;
@@ -140,7 +155,7 @@
   font-size: 1.05rem;
   font-weight: 800;
   border-radius: var(--radius);
-  margin-top: 16px;
+  margin-top: 8px;
   width: 100%;
   letter-spacing: 0.04em;
   box-shadow: 0 4px 0px #C85A30;
