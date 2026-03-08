@@ -6,6 +6,9 @@ const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'))
 
 // https://vite.dev/config/
 export default defineConfig({
+  test: {
+    environment: 'node',
+  },
   plugins: [react()],
   base: '/Flip7/',
   server: {
@@ -15,7 +18,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
         followRedirects: true,
-        rewrite: (path) => path.replace('/bgg/', '')
+        rewrite: (path) => path.replace(/^\/bgg/, '')
       }
     }
   },

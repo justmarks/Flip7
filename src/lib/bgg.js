@@ -6,8 +6,12 @@ const MAPPINGS_KEY = 'flip7_bgg_mappings'
 const PUBLISHED_KEY = 'flip7_bgg_published'
 const MAX_PUBLISHED = 200
 
-const LOGIN_URL = '/bgg/login/api/v1'
-const GEEKPLAY_URL = '/bgg/geekplay.php'
+const BGG_BASE = import.meta.env.DEV
+  ? '/bgg'                        // Vite dev server proxies /bgg/* → boardgamegeek.com
+  : 'https://boardgamegeek.com'   // CapacitorHttp on Android makes native requests, bypassing CORS
+
+const LOGIN_URL = `${BGG_BASE}/login/api/v1`
+const GEEKPLAY_URL = `${BGG_BASE}/geekplay.php`
 const FLIP7_BGG_ID = '420087'
 
 // ---------------------------------------------------------------------------
@@ -163,21 +167,32 @@ export async function submitBggPlay({ players, playdate }) {
     .join('&')
 
   // Try CapacitorHttp first — session cookies from last login are sent automatically
+  console.log('[BGG] submitBggPlay: trying CapacitorHttp', GEEKPLAY_URL, 'players:', players.length, 'date:', playdate)
   try {
     const playRes = await CapacitorHttp.post({
       url: GEEKPLAY_URL,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       data: body,
     })
+    console.log('[BGG] submitBggPlay CapacitorHttp status:', playRes.status, 'data:', playRes.data)
     const json = typeof playRes.data === 'string' ? JSON.parse(playRes.data) : playRes.data
-    if (json?.playid) return { success: true, playId: json.playid }
-    if (json?.error) return { success: false, error: json.error }
+    if (json?.playid) {
+      console.log('[BGG] submitBggPlay success, playId:', json.playid)
+      return { success: true, playId: json.playid }
+    }
+    if (json?.error) {
+      console.warn('[BGG] submitBggPlay BGG error:', json.error)
+      return { success: false, error: json.error }
+    }
+    console.warn('[BGG] submitBggPlay unexpected response:', json)
     return { success: false, error: 'Unexpected response from BGG.' }
-  } catch (_capErr) {
+  } catch (capErr) {
+    console.warn('[BGG] submitBggPlay CapacitorHttp error:', capErr)
     // Fall through to fetch fallback
   }
 
   // fetch fallback — session cookies from last login are sent via credentials: 'include'
+  console.log('[BGG] submitBggPlay: trying fetch fallback', GEEKPLAY_URL)
   try {
     const playRes = await fetch(GEEKPLAY_URL, {
       method: 'POST',
@@ -185,11 +200,21 @@ export async function submitBggPlay({ players, playdate }) {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body,
     })
+    console.log('[BGG] submitBggPlay fetch status:', playRes.status)
     const json = await playRes.json()
-    if (json?.playid) return { success: true, playId: json.playid }
-    if (json?.error) return { success: false, error: json.error }
+    console.log('[BGG] submitBggPlay fetch response:', json)
+    if (json?.playid) {
+      console.log('[BGG] submitBggPlay success (fetch), playId:', json.playid)
+      return { success: true, playId: json.playid }
+    }
+    if (json?.error) {
+      console.warn('[BGG] submitBggPlay BGG error (fetch):', json.error)
+      return { success: false, error: json.error }
+    }
+    console.warn('[BGG] submitBggPlay unexpected response (fetch):', json)
     return { success: false, error: 'Unexpected response from BGG.' }
-  } catch (_fetchErr) {
+  } catch (fetchErr) {
+    console.error('[BGG] submitBggPlay fetch error:', fetchErr)
     return { success: false, error: 'Network error. Check your connection and try again.' }
   }
 }
