@@ -37,6 +37,16 @@ jobs:
             sed -i '/flatDir[[:space:]]*{/,/}/d' "$FILE"
           fi
 
+      - name: Patch sentry-capacitor build.gradle for AGP 9 compatibility
+        run: |
+          FILE="node_modules/@sentry/capacitor/android/build.gradle"
+          if [ -f "$FILE" ]; then
+            sed -i 's/compileSdkVersion safeExtGet/compileSdk safeExtGet/g' "$FILE"
+            sed -i 's/targetSdkVersion safeExtGet/targetSdk safeExtGet/g' "$FILE"
+            sed -i 's/minSdkVersion safeExtGet/minSdk safeExtGet/g' "$FILE"
+            sed -i 's/lintOptions {/lint {/g' "$FILE"
+          fi
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
