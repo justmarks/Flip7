@@ -46,7 +46,7 @@ export default function BggPublishModal({ winner, players, gameId, rounds, onClo
   function updateMapping(localName, bggUsername) {
     setEditedMappings(prev => ({
       ...prev,
-      [localName.toLowerCase()]: bggUsername.trim(),
+      [localName.toLowerCase()]: bggUsername,
     }))
   }
 

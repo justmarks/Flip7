@@ -166,3 +166,18 @@
   box-shadow: 0 1px 0px #C85A30 !important;
   transform: translateY(3px) scale(1) !important;
 }
+
+.homeBtn {
+  background: transparent;
+  color: var(--text-muted);
+  border: 2px solid var(--border);
+  padding: 11px 40px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  border-radius: var(--radius);
+  margin-top: 4px;
+  width: 100%;
+  letter-spacing: 0.02em;
+}
+
+.homeBtn:hover { background: var(--surface2); }

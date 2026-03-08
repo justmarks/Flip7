@@ -2,7 +2,7 @@ import { useState } from 'react'
 import styles from './Winner.module.css'
 import BggPublishModal from './BggPublishModal'
 
-export default function Winner({ winner, players, rounds, gameId, onReset }) {
+export default function Winner({ winner, players, rounds, gameId, onReset, onPlayAgain }) {
   const sorted = [...players].sort((a, b) => b.totalScore - a.totalScore)
   const [showBggPublish, setShowBggPublish] = useState(false)
 
@@ -35,7 +35,8 @@ export default function Winner({ winner, players, rounds, gameId, onReset }) {
           <button className={styles.bggBtn} onClick={() => setShowBggPublish(true)}>
             📋 Publish to BGG
           </button>
-          <button className={styles.newGameBtn} onClick={onReset}>Play Again</button>
+          <button className={styles.newGameBtn} onClick={onPlayAgain}>Play Again</button>
+          <button className={styles.homeBtn} onClick={onReset}>Home</button>
         </div>
       </div>
 

@@ -35,14 +35,15 @@ export default function BggSettingsModal({ knownPlayers, onClose }) {
   function updateMapping(localName, bggUsername) {
     setMappings(prev => ({
       ...prev,
-      [localName.toLowerCase()]: bggUsername.trim(),
+      [localName.toLowerCase()]: bggUsername,
     }))
   }
 
   async function handleLogout() {
     await clearBggCredentials()
     setHasStoredAccount(false)
-    // username stays pre-filled so the user can just re-enter their password
+    setUsername('')
+    setPassword('')
     trackEvent('bgg_logout')
   }
 
@@ -81,39 +82,50 @@ export default function BggSettingsModal({ knownPlayers, onClose }) {
 
         <div className={styles.sectionTitle}>BoardGameGeek Account</div>
 
-        <label className={styles.fieldLabel}>Username</label>
-        <input
-          className={styles.input}
-          type="text"
-          placeholder="BGG username"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          autoCapitalize="none"
-          autoCorrect="off"
-        />
+        {hasStoredAccount ? (
+          <div className={styles.loggedInBox}>
+            <div className={styles.loggedInRow}>
+              <span className={styles.loggedInIcon}>✓</span>
+              <div className={styles.loggedInText}>
+                <span className={styles.loggedInLabel}>Signed in as</span>
+                <span className={styles.loggedInUser}>{username}</span>
+              </div>
+            </div>
+            <button className={styles.signOutBtn} type="button" onClick={handleLogout}>
+              Sign out
+            </button>
+          </div>
+        ) : (
+          <>
+            <label className={styles.fieldLabel}>Username</label>
+            <input
+              className={styles.input}
+              type="text"
+              placeholder="BGG username"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              autoCapitalize="none"
+              autoCorrect="off"
+            />
 
-        <label className={styles.fieldLabel}>Password</label>
-        <div className={styles.passwordRow}>
-          <input
-            className={styles.input}
-            type={showPassword ? 'text' : 'password'}
-            placeholder="BGG password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-          />
-          <button
-            className={styles.togglePassword}
-            type="button"
-            onClick={() => setShowPassword(v => !v)}
-          >
-            {showPassword ? 'Hide' : 'Show'}
-          </button>
-        </div>
-
-        {hasStoredAccount && (
-          <button className={styles.logoutBtn} type="button" onClick={handleLogout}>
-            Log out of BGG
-          </button>
+            <label className={styles.fieldLabel}>Password</label>
+            <div className={styles.passwordRow}>
+              <input
+                className={styles.input}
+                type={showPassword ? 'text' : 'password'}
+                placeholder="BGG password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+              />
+              <button
+                className={styles.togglePassword}
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+          </>
         )}
 
         <div className={styles.divider} />

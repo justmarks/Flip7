@@ -83,6 +83,16 @@ export default function App() {
     }
   }
 
+  function playAgain() {
+    setPlayers(players.map(p => ({ ...p, totalScore: 0 })))
+    setRounds([])
+    setCurrentRound(1)
+    setWinner(null)
+    setPhase('roundEntry')
+    trackEvent('game_started', { playerCount: players.length })
+    trackScreen('roundEntry')
+  }
+
   function resetGame() {
     setPhase('setup')
     setPlayers([])
@@ -106,7 +116,7 @@ export default function App() {
     />
   )
   else if (phase === 'winner') screen = (
-    <Winner winner={winner} players={players} rounds={rounds} gameId={lastGameId} onReset={resetGame} />
+    <Winner winner={winner} players={players} rounds={rounds} gameId={lastGameId} onReset={resetGame} onPlayAgain={playAgain} />
   )
   else if (phase === 'leaderboard') screen = (
     <Leaderboard onBack={() => { setPhase('setup'); trackScreen('setup') }} />

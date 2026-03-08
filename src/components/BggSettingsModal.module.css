@@ -163,24 +163,70 @@
   border-color: var(--coral-light);
 }
 
-.logoutBtn {
-  background: none;
-  border: none;
-  color: var(--text-dim);
-  font-size: 0.78rem;
-  font-weight: 800;
-  font-family: inherit;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  cursor: pointer;
-  padding: 0;
-  text-align: left;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+.loggedInBox {
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.logoutBtn:hover {
+.loggedInRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.loggedInIcon {
+  font-size: 1rem;
+  color: #3a8c4e;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.loggedInText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.loggedInLabel {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.loggedInUser {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signOutBtn {
+  background: transparent;
   color: #c0392b;
+  border: 2px solid #c0392b;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.signOutBtn:hover {
+  background: #fdf0ef;
 }
 
 .emptyMsg {
