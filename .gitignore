@@ -32,3 +32,7 @@ Android/local.properties
 # Signing keystore (never commit — store password in GitHub secrets)
 *.jks
 *.keystore
+
+# Local env vars (DSN / API keys)
+.env
+.env.local

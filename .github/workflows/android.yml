@@ -26,6 +26,9 @@ jobs:
 
       - name: Build web assets and sync Capacitor
         run: npm run sync:android
+        env:
+          VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
+          VITE_POSTHOG_TOKEN: ${{ vars.VITE_POSTHOG_TOKEN }}
 
       - name: Remove flatDir from generated Capacitor plugin build file
         run: |

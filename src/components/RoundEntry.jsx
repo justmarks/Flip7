@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import styles from './RoundEntry.module.css'
 import ConfirmModal from './ConfirmModal'
+import { trackEvent } from '../lib/telemetry'
 
 const MODIFIERS = ['+2', '+4', '+6', '+8', '+10', 'x2']
 const PLAYER_COLORS = ['#FFD700', '#FF6B35', '#00C9A7', '#3A86FF', '#7B2FBE', '#EF233C', '#06D6A0', '#FB5607']
@@ -124,6 +125,11 @@ export default function RoundEntry({ players, rounds, currentRound, onSubmit, on
       playerId: e.playerId,
       score: calcScore(e),
     }))
+    trackEvent('round_submitted', {
+      roundNumber: currentRound,
+      bustedCount: entries.filter(e => e.busted).length,
+      flip7Count: entries.filter(e => e.flip7).length,
+    })
     onSubmit(scores)
     setEntries(players.map(p => ({
       playerId: p.id,

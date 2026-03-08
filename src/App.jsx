@@ -1,13 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Setup from './components/Setup'
 import RoundEntry from './components/RoundEntry'
 import Winner from './components/Winner'
 import Leaderboard from './components/Leaderboard'
 import ConfirmModal from './components/ConfirmModal'
 import { recordGame, clearGameHistory } from './lib/storage'
+import { trackEvent, trackScreen } from './lib/telemetry'
 
 export default function App() {
   const [phase, setPhase] = useState('setup') // setup | roundEntry | winner | leaderboard
+
+  useEffect(() => {
+    trackScreen('setup')
+  }, [])
   const [players, setPlayers] = useState([])
   const [rounds, setRounds] = useState([])
   const [currentRound, setCurrentRound] = useState(1)
@@ -43,6 +48,8 @@ export default function App() {
     setCurrentRound(1)
     setWinner(null)
     setPhase('roundEntry')
+    trackEvent('game_started', { playerCount: playerNames.length })
+    trackScreen('roundEntry')
   }
 
   async function submitRound(roundScores) {
@@ -66,6 +73,11 @@ export default function App() {
       setLastGameId(gameId)
       setWinner(roundWinner)
       setPhase('winner')
+      trackEvent('game_completed', {
+        playerCount: updatedPlayers.length,
+        roundCount: newRounds.length,
+        winningScore: roundWinner.totalScore,
+      })
     } else {
       setCurrentRound(prev => prev + 1)
     }
@@ -77,11 +89,12 @@ export default function App() {
     setRounds([])
     setCurrentRound(1)
     setWinner(null)
+    trackScreen('setup')
   }
 
   let screen
   if (phase === 'setup') screen = (
-    <Setup onStart={startGame} onLeaderboard={() => setPhase('leaderboard')} />
+    <Setup onStart={startGame} onLeaderboard={() => { setPhase('leaderboard'); trackScreen('leaderboard') }} />
   )
   else if (phase === 'roundEntry') screen = (
     <RoundEntry
@@ -96,7 +109,7 @@ export default function App() {
     <Winner winner={winner} players={players} rounds={rounds} gameId={lastGameId} onReset={resetGame} />
   )
   else if (phase === 'leaderboard') screen = (
-    <Leaderboard onBack={() => setPhase('setup')} />
+    <Leaderboard onBack={() => { setPhase('setup'); trackScreen('setup') }} />
   )
 
   return (

@@ -24,5 +24,15 @@ export default defineConfig({
   },
   define: {
     __APP_VERSION__: JSON.stringify(version),
-  }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          sentry: ['@sentry/capacitor', '@sentry/react'],
+          posthog: ['posthog-js'],
+        },
+      },
+    },
+  },
 })

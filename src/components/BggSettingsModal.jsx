@@ -8,6 +8,7 @@ import {
   verifyBggCredentials,
 } from '../lib/bgg'
 import styles from './BggSettingsModal.module.css'
+import { trackEvent } from '../lib/telemetry'
 
 export default function BggSettingsModal({ knownPlayers, onClose }) {
   const [username, setUsername] = useState('')
@@ -42,6 +43,7 @@ export default function BggSettingsModal({ knownPlayers, onClose }) {
     await clearBggCredentials()
     setHasStoredAccount(false)
     // username stays pre-filled so the user can just re-enter their password
+    trackEvent('bgg_logout')
   }
 
   async function handleSave() {
@@ -53,8 +55,10 @@ export default function BggSettingsModal({ knownPlayers, onClose }) {
       if (!ok) {
         setAuthError(error ?? 'Invalid credentials.')
         setSaveStatus('error')
+        trackEvent('bgg_login', { success: false })
         return
       }
+      trackEvent('bgg_login', { success: true })
     }
     setSaveStatus('saving')
     await Promise.all([

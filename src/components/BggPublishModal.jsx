@@ -8,6 +8,7 @@ import {
   submitBggPlay,
 } from '../lib/bgg'
 import styles from './BggPublishModal.module.css'
+import { trackEvent } from '../lib/telemetry'
 
 function placeIcon(i) {
   if (i === 0) return '🥇'
@@ -71,9 +72,11 @@ export default function BggPublishModal({ winner, players, gameId, rounds, onClo
         saveBggMappings(editedMappings),
       ])
       setStatus('success')
+      trackEvent('bgg_play_published', { success: true })
     } else {
       setStatus('error')
       setErrorMsg(result.error)
+      trackEvent('bgg_play_published', { success: false, error: result.error })
     }
   }
 
