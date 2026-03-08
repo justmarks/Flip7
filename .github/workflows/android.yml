@@ -45,6 +45,7 @@ jobs:
             sed -i 's/targetSdkVersion safeExtGet/targetSdk safeExtGet/g' "$FILE"
             sed -i 's/minSdkVersion safeExtGet/minSdk safeExtGet/g' "$FILE"
             sed -i 's/lintOptions {/lint {/g' "$FILE"
+            sed -i "s/getDefaultProguardFile('proguard-android.txt')/getDefaultProguardFile('proguard-android-optimize.txt')/g" "$FILE"
           fi
 
       - name: Set up JDK 17
