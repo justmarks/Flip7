@@ -19,13 +19,13 @@ const platform = Capacitor.getPlatform()
 
 Sentry.setTag('platform', platform)
 
-if (import.meta.env.VITE_POSTHOG_TOKEN) {
-  posthog.init(import.meta.env.VITE_POSTHOG_TOKEN, {
-    api_host: 'https://us.i.posthog.com',
-    capture_pageview: false,
-  })
-  posthog.register({ platform })
-}
+const POSTHOG_TOKEN = import.meta.env.VITE_POSTHOG_TOKEN || 'phc_SsRctUzNbEfMT9Vo2rH02sSslCqMCdlg6NU8l5PEHL7'
+
+posthog.init(POSTHOG_TOKEN, {
+  api_host: 'https://us.i.posthog.com',
+  capture_pageview: false,
+})
+posthog.register({ platform })
 
 getBggCredentials().then(creds => {
   trackEvent('app_started', {
