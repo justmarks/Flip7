@@ -1,18 +1,39 @@
 import { Preferences } from '@capacitor/preferences'
-import { CapacitorHttp, CapacitorCookies } from '@capacitor/core'
+import { CapacitorHttp, CapacitorCookies, Capacitor } from '@capacitor/core'
 
 const CREDENTIALS_KEY = 'flip7_bgg_credentials'
 const MAPPINGS_KEY = 'flip7_bgg_mappings'
 const PUBLISHED_KEY = 'flip7_bgg_published'
+const SESSION_KEY = 'flip7_bgg_session'
 const MAX_PUBLISHED = 200
+
+const IS_NATIVE = Capacitor.isNativePlatform()
+const BGG_PROXY_URL = import.meta.env.VITE_BGG_PROXY_URL?.replace(/\/$/, '')
 
 const BGG_BASE = import.meta.env.DEV
   ? '/bgg'                        // Vite dev server proxies /bgg/* → boardgamegeek.com
-  : 'https://boardgamegeek.com'   // CapacitorHttp on Android makes native requests, bypassing CORS
+  : IS_NATIVE
+    ? 'https://boardgamegeek.com' // CapacitorHttp on Android makes native requests, bypassing CORS
+    : BGG_PROXY_URL ?? 'https://boardgamegeek.com' // Web: Cloudflare Worker proxy
 
 const LOGIN_URL = `${BGG_BASE}/login/api/v1`
 const GEEKPLAY_URL = `${BGG_BASE}/geekplay.php`
 const FLIP7_BGG_ID = '420087'
+
+// Web proxy session helpers — BGG cookies can't be stored in the browser cross-domain,
+// so the worker relays them as X-BGG-Session which we store in Preferences.
+async function getStoredSession() {
+  try {
+    const { value } = await Preferences.get({ key: SESSION_KEY })
+    return value
+  } catch { return null }
+}
+async function storeSession(session) {
+  try { await Preferences.set({ key: SESSION_KEY, value: session }) } catch {}
+}
+async function clearStoredSession() {
+  try { await Preferences.remove({ key: SESSION_KEY }) } catch {}
+}
 
 // ---------------------------------------------------------------------------
 // Credentials storage
@@ -37,7 +58,11 @@ export async function saveBggCredentials({ username }) {
 export async function clearBggCredentials() {
   try {
     await Preferences.remove({ key: CREDENTIALS_KEY })
-    await CapacitorCookies.clearCookies({ url: 'https://boardgamegeek.com' })
+    if (IS_NATIVE) {
+      await CapacitorCookies.clearCookies({ url: 'https://boardgamegeek.com' })
+    } else {
+      await clearStoredSession()
+    }
   } catch {}
 }
 
@@ -95,6 +120,28 @@ export async function markGamePublished(gameId) {
 
 /** @returns {Promise<{ ok: boolean, error?: string }>} */
 export async function verifyBggCredentials({ username, password }) {
+  // Web production path: route through Cloudflare Worker proxy (CORS bypass)
+  if (BGG_PROXY_URL && !IS_NATIVE && !import.meta.env.DEV) {
+    console.log('[BGG] verifyBggCredentials: using proxy', LOGIN_URL)
+    try {
+      const res = await fetch(LOGIN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credentials: { username, password } }),
+      })
+      console.log('[BGG] verifyBggCredentials proxy status:', res.status)
+      if (res.ok || res.status === 204) {
+        const session = res.headers.get('X-BGG-Session')
+        if (session) await storeSession(session)
+        return { ok: true }
+      }
+      return { ok: false, error: 'Invalid BGG username or password.' }
+    } catch (err) {
+      console.error('[BGG] verifyBggCredentials proxy error:', err)
+      return { ok: false, error: 'Network error. Check your connection and try again.' }
+    }
+  }
+
   console.log('[BGG] verifyBggCredentials: trying CapacitorHttp', LOGIN_URL)
   try {
     const loginRes = await CapacitorHttp.post({
@@ -165,6 +212,31 @@ export async function submitBggPlay({ players, playdate }) {
   const body = Object.entries(fields)
     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
     .join('&')
+
+  // Web production path: route through Cloudflare Worker proxy
+  if (BGG_PROXY_URL && !IS_NATIVE && !import.meta.env.DEV) {
+    console.log('[BGG] submitBggPlay: using proxy', GEEKPLAY_URL)
+    try {
+      const session = await getStoredSession()
+      const res = await fetch(GEEKPLAY_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          ...(session && { 'X-BGG-Session': session }),
+        },
+        body,
+      })
+      console.log('[BGG] submitBggPlay proxy status:', res.status)
+      const json = await res.json()
+      console.log('[BGG] submitBggPlay proxy response:', json)
+      if (json?.playid) return { success: true, playId: json.playid }
+      if (json?.error) return { success: false, error: json.error }
+      return { success: false, error: 'Unexpected response from BGG.' }
+    } catch (err) {
+      console.error('[BGG] submitBggPlay proxy error:', err)
+      return { success: false, error: 'Network error. Check your connection and try again.' }
+    }
+  }
 
   // Try CapacitorHttp first — session cookies from last login are sent automatically
   console.log('[BGG] submitBggPlay: trying CapacitorHttp', GEEKPLAY_URL, 'players:', players.length, 'date:', playdate)

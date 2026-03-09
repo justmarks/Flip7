@@ -29,6 +29,7 @@ vi.mock('@capacitor/preferences', () => ({
 vi.mock('@capacitor/core', () => ({
   CapacitorHttp: { post: mockCapacitorHttpPost },
   CapacitorCookies: { clearCookies: mockClearCookies },
+  Capacitor: { isNativePlatform: () => false },
 }))
 
 // ---------------------------------------------------------------------------
@@ -115,11 +116,13 @@ describe('saveBggCredentials', () => {
 // clearBggCredentials
 // ===========================================================================
 describe('clearBggCredentials', () => {
-  it('removes credentials key and clears BGG cookies', async () => {
+  it('removes credentials key and clears stored session (web path)', async () => {
     prefsStore['flip7_bgg_credentials'] = JSON.stringify({ username: 'alice' })
+    prefsStore['flip7_bgg_session'] = 'bggusername=alice; SessionID=abc'
     await clearBggCredentials()
     expect(prefsStore['flip7_bgg_credentials']).toBeUndefined()
-    expect(mockClearCookies).toHaveBeenCalledWith({ url: 'https://boardgamegeek.com' })
+    expect(prefsStore['flip7_bgg_session']).toBeUndefined()
+    expect(mockClearCookies).not.toHaveBeenCalled()
   })
 })
 
