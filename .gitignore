@@ -36,3 +36,6 @@ Android/local.properties
 # Local env vars (DSN / API keys)
 .env
 .env.local
+
+# Claude Code local settings
+.claude/settings.local.json

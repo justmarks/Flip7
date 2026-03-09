@@ -8,22 +8,30 @@ import './index.css'
 import App from './App.jsx'
 import { ErrorFallback } from './components/ErrorFallback.jsx'
 import { trackEvent } from './lib/telemetry.js'
+import { getBggCredentials } from './lib/bgg.js'
 
 Sentry.init(
   { dsn: import.meta.env.VITE_SENTRY_DSN, tracesSampleRate: 1.0 },
   SentryReact.init
 )
 
+const platform = Capacitor.getPlatform()
+
+Sentry.setTag('platform', platform)
+
 if (import.meta.env.VITE_POSTHOG_TOKEN) {
   posthog.init(import.meta.env.VITE_POSTHOG_TOKEN, {
     api_host: 'https://us.i.posthog.com',
     capture_pageview: false,
   })
+  posthog.register({ platform })
 }
 
-trackEvent('app_started', {
-  version: __APP_VERSION__,
-  platform: Capacitor.getPlatform(),
+getBggCredentials().then(creds => {
+  trackEvent('app_started', {
+    version: __APP_VERSION__,
+    ...(creds?.username && { bgg_username: creds.username }),
+  })
 })
 
 createRoot(document.getElementById('root')).render(
