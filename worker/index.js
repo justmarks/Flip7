@@ -34,19 +34,15 @@ export default {
       redirect: 'manual',
     })
 
-    let debugInfo = `initial: ${upstream.status}`
-
     // Follow redirect manually to preserve POST method
     if (upstream.status >= 300 && upstream.status < 400) {
       const location = upstream.headers.get('Location')
-      debugInfo += ` → redirect to: ${location}`
       if (location) {
         upstream = await fetch(location, {
           method: request.method,
           headers: upstreamHeaders,
           body: bodyText,
         })
-        debugInfo += ` → final: ${upstream.status}`
       }
     }
 
@@ -60,7 +56,6 @@ export default {
       resHeaders.set('X-BGG-Session', setCookies.map(c => c.split(';')[0]).join('; '))
     }
 
-    resHeaders.set('X-BGG-Debug', debugInfo)
     return new Response(upstream.body, { status: upstream.status, headers: resHeaders })
   },
 }
@@ -70,7 +65,7 @@ function corsHeaders() {
     'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, X-BGG-Session',
-    'Access-Control-Expose-Headers': 'X-BGG-Session, X-BGG-Debug',
+    'Access-Control-Expose-Headers': 'X-BGG-Session',
     'Access-Control-Max-Age': '86400',
   })
 }
