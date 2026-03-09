@@ -135,7 +135,8 @@ export async function verifyBggCredentials({ username, password }) {
         if (session) await storeSession(session)
         return { ok: true }
       }
-      return { ok: false, error: 'Invalid BGG username or password.' }
+      const debug = res.headers.get('X-BGG-Debug') ?? ''
+      return { ok: false, error: `Login failed. (${res.status}) ${debug}`.trim() }
     } catch (err) {
       console.error('[BGG] verifyBggCredentials proxy error:', err)
       return { ok: false, error: 'Network error. Check your connection and try again.' }
