@@ -34,7 +34,6 @@ jobs:
         env:
           VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
           VITE_POSTHOG_TOKEN: ${{ vars.VITE_POSTHOG_TOKEN }}
-          VITE_BGG_PROXY_URL: ${{ vars.VITE_BGG_PROXY_URL }}
 
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3

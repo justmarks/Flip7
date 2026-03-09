@@ -8,13 +8,13 @@ const SESSION_KEY = 'flip7_bgg_session'
 const MAX_PUBLISHED = 200
 
 const IS_NATIVE = Capacitor.isNativePlatform()
-const BGG_PROXY_URL = import.meta.env.VITE_BGG_PROXY_URL?.replace(/\/$/, '')
+const BGG_PROXY_URL = 'https://flip7-bgg-proxy.jmarks-flip7.workers.dev'
 
 const BGG_BASE = import.meta.env.DEV
   ? '/bgg'                        // Vite dev server proxies /bgg/* → boardgamegeek.com
   : IS_NATIVE
     ? 'https://boardgamegeek.com' // CapacitorHttp on Android makes native requests, bypassing CORS
-    : BGG_PROXY_URL || 'https://boardgamegeek.com' // Web: Cloudflare Worker proxy
+    : BGG_PROXY_URL               // Web: Cloudflare Worker proxy
 
 const LOGIN_URL = `${BGG_BASE}/login/api/v1`
 const GEEKPLAY_URL = `${BGG_BASE}/geekplay.php`
