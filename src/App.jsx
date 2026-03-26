@@ -93,6 +93,26 @@ export default function App() {
     trackScreen('roundEntry')
   }
 
+  function editRoundScore(roundNumber, playerId, newScore) {
+    const newRounds = rounds.map(r => {
+      if (r.roundNumber !== roundNumber) return r
+      return {
+        ...r,
+        scores: r.scores.map(s => s.playerId === playerId ? { ...s, score: newScore } : s),
+      }
+    })
+    setRounds(newRounds)
+    setPlayers(prev =>
+      prev.map(p => ({
+        ...p,
+        totalScore: newRounds.reduce((sum, r) => {
+          const entry = r.scores.find(s => s.playerId === p.id)
+          return sum + (entry ? entry.score : 0)
+        }, 0),
+      }))
+    )
+  }
+
   function resetGame() {
     setPhase('setup')
     setPlayers([])
@@ -113,6 +133,7 @@ export default function App() {
       currentRound={currentRound}
       onSubmit={submitRound}
       onReset={resetGame}
+      onEditScore={editRoundScore}
     />
   )
   else if (phase === 'winner') screen = (
