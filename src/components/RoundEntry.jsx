@@ -44,11 +44,12 @@ function PlayerScoreInput({ player, entry, onChange }) {
               <button className={styles.adjustBtn} onClick={() => adjustNumberSum(-1)}>−</button>
               <input
                 className={styles.numberSum}
-                type="number"
-                min="0"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={entry.numberSum}
                 onChange={e => onChange({ numberSum: Math.max(0, parseInt(e.target.value) || 0) })}
-                onFocus={e => e.target.select()}
+                onFocus={e => { const t = e.target; requestAnimationFrame(() => t.select()) }}
               />
               <button className={styles.adjustBtn} onClick={() => adjustNumberSum(1)}>+</button>
             </div>
@@ -201,8 +202,9 @@ export default function RoundEntry({ players, rounds, currentRound, onSubmit, on
                           {isEditing ? (
                             <input
                               className={styles.cellEditInput}
-                              type="number"
-                              min="0"
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
                               value={editValue}
                               onChange={e => setEditValue(e.target.value)}
                               onBlur={commitCellEdit}
@@ -210,7 +212,7 @@ export default function RoundEntry({ players, rounds, currentRound, onSubmit, on
                                 if (e.key === 'Enter') commitCellEdit()
                                 if (e.key === 'Escape') setEditingCell(null)
                               }}
-                              onFocus={e => e.target.select()}
+                              onFocus={e => { const t = e.target; requestAnimationFrame(() => t.select()) }}
                               autoFocus
                             />
                           ) : (
