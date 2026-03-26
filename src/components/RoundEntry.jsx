@@ -2,20 +2,10 @@ import { useState } from 'react'
 import styles from './RoundEntry.module.css'
 import ConfirmModal from './ConfirmModal'
 import { trackEvent } from '../lib/telemetry'
+import { calcScore } from '../lib/scoring'
 
 const MODIFIERS = ['+2', '+4', '+6', '+8', '+10', 'x2']
 const PLAYER_COLORS = ['#FFD700', '#FF6B35', '#00C9A7', '#3A86FF', '#7B2FBE', '#EF233C', '#06D6A0', '#FB5607']
-
-function calcScore({ busted, numberSum, modifiers, flip7 }) {
-  if (busted) return 0
-  let score = numberSum
-  if (modifiers.includes('x2')) score *= 2
-  for (const m of modifiers) {
-    if (m !== 'x2') score += parseInt(m)
-  }
-  if (flip7) score += 15
-  return score
-}
 
 function PlayerScoreInput({ player, entry, onChange }) {
   function toggleModifier(mod) {
@@ -58,6 +48,7 @@ function PlayerScoreInput({ player, entry, onChange }) {
                 min="0"
                 value={entry.numberSum}
                 onChange={e => onChange({ numberSum: Math.max(0, parseInt(e.target.value) || 0) })}
+                onFocus={e => e.target.select()}
               />
               <button className={styles.adjustBtn} onClick={() => adjustNumberSum(1)}>+</button>
             </div>
@@ -99,7 +90,7 @@ function PlayerScoreInput({ player, entry, onChange }) {
   )
 }
 
-export default function RoundEntry({ players, rounds, currentRound, onSubmit, onReset }) {
+export default function RoundEntry({ players, rounds, currentRound, onSubmit, onReset, onEditScore }) {
   const [entries, setEntries] = useState(
     players.map(p => ({
       playerId: p.id,
@@ -110,6 +101,8 @@ export default function RoundEntry({ players, rounds, currentRound, onSubmit, on
     }))
   )
   const [showConfirm, setShowConfirm] = useState(false)
+  const [editingCell, setEditingCell] = useState(null) // { roundNumber, playerId }
+  const [editValue, setEditValue] = useState('')
 
   const sorted = [...players].sort((a, b) => b.totalScore - a.totalScore)
   const gridCols = `140px repeat(${rounds.length}, 44px)`
@@ -138,6 +131,20 @@ export default function RoundEntry({ players, rounds, currentRound, onSubmit, on
       modifiers: [],
       flip7: false,
     })))
+  }
+
+  function startCellEdit(roundNumber, playerId, currentScore) {
+    setEditingCell({ roundNumber, playerId })
+    setEditValue(String(currentScore))
+  }
+
+  function commitCellEdit() {
+    if (!editingCell) return
+    const val = parseInt(editValue)
+    if (!isNaN(val) && val >= 0 && onEditScore) {
+      onEditScore(editingCell.roundNumber, editingCell.playerId, val)
+    }
+    setEditingCell(null)
   }
 
   return (
@@ -184,9 +191,31 @@ export default function RoundEntry({ players, rounds, currentRound, onSubmit, on
                     <span className={styles.historyName}>{p.name}</span>
                     {rounds.map(r => {
                       const entry = r.scores.find(s => s.playerId === p.id)
+                      const isEditing = editingCell?.roundNumber === r.roundNumber && editingCell?.playerId === p.id
                       return (
-                        <span key={r.roundNumber} className={entry?.score === 0 ? styles.bust : ''}>
-                          {entry ? entry.score : '—'}
+                        <span
+                          key={r.roundNumber}
+                          className={`${entry?.score === 0 ? styles.bust : ''} ${styles.editableCell}`}
+                          onClick={() => !isEditing && startCellEdit(r.roundNumber, p.id, entry?.score ?? 0)}
+                        >
+                          {isEditing ? (
+                            <input
+                              className={styles.cellEditInput}
+                              type="number"
+                              min="0"
+                              value={editValue}
+                              onChange={e => setEditValue(e.target.value)}
+                              onBlur={commitCellEdit}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') commitCellEdit()
+                                if (e.key === 'Escape') setEditingCell(null)
+                              }}
+                              onFocus={e => e.target.select()}
+                              autoFocus
+                            />
+                          ) : (
+                            entry ? entry.score : '—'
+                          )}
                         </span>
                       )
                     })}
