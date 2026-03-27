@@ -267,9 +267,24 @@
 
 .playerName { font-weight: 900; font-size: 1.05rem; color: var(--text); }
 
-.scoreDisplay { min-width: 80px; text-align: right; }
+.scoreDisplay { min-width: 80px; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
 
 .roundScore { font-size: 1.4rem; font-weight: 900; color: var(--coral); }
+
+.projectedTotal {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+
+.projectedOver {
+  color: #E53E3E;
+  background: #FFF5F5;
+  border: 1px solid #FEB2B2;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
 
 .bustLabel {
   font-size: 1rem;

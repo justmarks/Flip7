@@ -22,6 +22,7 @@ function PlayerScoreInput({ player, entry, onChange }) {
   }
 
   const score = calcScore(entry)
+  const projected = player.totalScore + score
 
   return (
     <div className={`${styles.playerCard} ${entry.busted ? styles.bustedCard : ''}`}>
@@ -32,6 +33,11 @@ function PlayerScoreInput({ player, entry, onChange }) {
             <span className={styles.bustLabel}>BUST</span>
           ) : (
             <span className={styles.roundScore}>{score} pts</span>
+          )}
+          {player.totalScore > 0 && (
+            <span className={`${styles.projectedTotal} ${projected >= 200 ? styles.projectedOver : ''}`}>
+              → {projected} total{projected >= 200 ? ' 🏆' : ''}
+            </span>
           )}
         </div>
       </div>
