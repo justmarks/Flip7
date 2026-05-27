@@ -7,6 +7,9 @@ on:
     branches: [master]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -84,42 +87,20 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Upload APK to Google Drive
-        run: |
-          pip install google-api-python-client google-auth --quiet
-          python3 << 'EOF'
-          import json
-          import os
-          from google.oauth2.service_account import Credentials
-          from googleapiclient.discovery import build
-          from googleapiclient.http import MediaFileUpload
-
-          version = os.environ['APP_VERSION']
-          apk_filename = f'Flip7ScoreTracker-v{version}.apk'
-
-          sa_info = json.loads(os.environ['GDRIVE_SERVICE_ACCOUNT_JSON'])
-          creds = Credentials.from_service_account_info(
-              sa_info,
-              scopes=['https://www.googleapis.com/auth/drive.file']
-          )
-          service = build('drive', 'v3', credentials=creds)
-
-          file_metadata = {
-              'name': apk_filename,
-              'parents': ['1GJIeUSxSb4OhMkDGc-t3p1Hf39Jr8aiq']
-          }
-          media = MediaFileUpload(
-              apk_filename,
-              mimetype='application/vnd.android.package-archive'
-          )
-          result = service.files().create(
-              body=file_metadata,
-              media_body=media,
-              fields='id,name',
-              supportsAllDrives=True
-          ).execute()
-          print(f"Uploaded {result['name']} to Google Drive (id: {result['id']})")
-          EOF
+      - name: Publish APK to GitHub Release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         env:
-          APP_VERSION: ${{ steps.version.outputs.version }}
-          GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          APK="Flip7ScoreTracker-v${VERSION}.apk"
+          TAG="v${VERSION}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG exists; replacing APK"
+            gh release upload "$TAG" "$APK" --clobber
+          else
+            echo "Creating release $TAG"
+            gh release create "$TAG" "$APK" \
+              --title "$TAG" \
+              --generate-notes
+          fi
